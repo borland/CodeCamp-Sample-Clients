@@ -1,0 +1,40 @@
+<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+             x:Class="moonlightapp.Page">
+    <Grid x:Name="Container">
+		<Grid x:Name="PeopleList" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="1*" />
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+			
+	        <TextBlock>List of People</TextBlock>
+	
+			<ListBox Grid.Row="1" ItemsSource="{Binding People}" HorizontalContentAlignment="Stretch">
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<Grid Margin="0">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="110" />
+								<ColumnDefinition Width="110" />
+								<ColumnDefinition Width="250" />
+								<ColumnDefinition Width="250" />
+							</Grid.ColumnDefinitions>
+							
+							<TextBlock Grid.Column="0" Text="{Binding FirstName}" Foreground="Green" />
+							<TextBlock Grid.Column="1" Text="{Binding LastName}" />
+							<TextBlock Grid.Column="2" Text="{Binding PhoneNumber}" />
+							<Button IsEnabled="{Binding Path=IsEnabled, ElementName=FetchButton}" Grid.Column="3" Content="View Pictures!" Click="ViewPictures_Click" />
+						</Grid>
+						
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
+	        
+	        <StackPanel Grid.Row="2">
+	            <Button x:Name="FetchButton" Content="Fetch..." />
+	        </StackPanel>
+	    </Grid>
+    </Grid>
+</UserControl>

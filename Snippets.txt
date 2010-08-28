@@ -1,0 +1,157 @@
+﻿new Thread(() =>
+{
+    foreach (var tmp in DataAccess.LoadPictures(person.Id))
+    {
+        var picture = tmp;
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            childViewModel.Pictures.Add(picture);
+        }));
+
+        //new Thread(() =>
+        //{
+            var bytes = DataAccess.LoadImage(person.Id, picture.Id);
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                picture.Image = bytes;
+            }));
+        //}).Start();
+    }
+}).Start();
+
+// ----------------------------------------------------------------------------
+
+DataAccess.LoadPicturesAsync(person.Id).ObserveOnDispatcher().Subscribe(picture =>
+{
+    picWindowVM.Pictures.Add(picture);
+    DataAccess.LoadImageAsync(person.Id, picture.Id).ObserveOnDispatcher().Subscribe(bytes => picture.Image = bytes);
+}); 
+          
+// ----------------------------------------------------------------------------      
+
+public static IObservable<Person> LoadPeopleAsync()
+{
+    return Request("person")
+        .GetResponseAsync()
+        .Select(response => response.GetResponseStream())
+        .SelectMany(stream => stream.ReadToEndAsync())
+        .SelectMany(bytes => bytes.ReadJson<Person[]>());
+}
+
+public static IObservable<Picture> LoadPicturesAsync(int personId)
+{
+    return Request("person", personId, "picture")
+        .GetResponseAsync()
+        .Select(response => response.GetResponseStream())
+        .SelectMany(stream => stream.ReadToEndAsync())
+        .SelectMany(bytes => bytes.ReadJson<Picture[]>());
+}
+
+
+public static IObservable<byte[]> LoadRawImageAsync(int personId, int pictureId)
+{
+    return Request("person", personId, "picture", pictureId)
+        .GetResponseAsync()
+        .Select(response => response.GetResponseStream())
+        .SelectMany(stream => stream.ReadToEndAsync());
+}     
+
+// ----------------------------------------------------------------------------
+
+private void Image_Loaded(object sender, RoutedEventArgs e)
+{
+    var image = sender as Image;
+
+    image.MouseEnter += (s, e2) =>
+    {
+        var current = ((ScaleTransform)image.LayoutTransform);
+        var xf = new ScaleTransform(current.ScaleX, current.ScaleY);
+        xf.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation { To = 1, Duration = TimeSpan.FromMilliseconds(250) });
+        image.LayoutTransform = xf;
+    };
+    image.MouseLeave += (s, e2) =>
+    {
+        var current = ((ScaleTransform)image.LayoutTransform);
+        var xf = new ScaleTransform(current.ScaleX, current.ScaleY);
+        xf.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation { To = 1, Duration = TimeSpan.FromMilliseconds(250) });
+        image.LayoutTransform = xf;
+    };
+}
+
+// ----------------------------------------------------------------------------
+
+
+    var mouseOverChanges = image.GetMouseEnter().Merge(image.GetMouseLeave()).Select(_ => image.IsMouseOver);
+    var bufferedChanges = mouseOverChanges.BufferWithTime(TimeSpan.FromSeconds(1), Scheduler.Dispatcher);
+
+    bufferedChanges
+        .Where(changes => changes.Count > 0 && changes.All(c => c == true))
+        .Subscribe(_ => AnimateTo(image, 1));
+
+    bufferedChanges
+        .Where(changes => changes.Count > 0 && changes.All(c => c == false))
+        .Subscribe(_ => AnimateTo(image, 0.3));
+
+    //var tEnter = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+    //var tLeave = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+    //image.MouseEnter += (s, e2) =>
+    //{
+    //    tLeave.Stop();
+    //    tEnter.Tick += (s3, e3) =>
+    //    {
+    //        tEnter.Stop();
+    //        if (!image.IsMouseOver)
+    //            return;
+
+    //        AnimateTo(image, 1);
+    //    };
+    //    tEnter.Start();
+    //};
+    //image.MouseLeave += (s, e2) =>
+    //{
+    //    tEnter.Stop();
+    //    tLeave.Tick += (s3, e3) =>
+    //    {
+    //        tLeave.Stop();
+    //        if (image.IsMouseOver)
+    //            return;
+
+    //        AnimateTo(image, 0.3);
+    //    };
+    //    tLeave.Start();                
+    //};
+
+// ----------------------------------------------------------------------------
+
+image.GetMouseEnter()
+    .SelectMany(Observable.Return(0).Delay(TimeSpan.FromSeconds(1), Scheduler.Dispatcher).TakeUntil(image.GetMouseLeave()))
+    .Subscribe(_ => AnimateTo(image, 1));
+
+image.GetMouseLeave()
+    .SelectMany(Observable.Return(0).Delay(TimeSpan.FromSeconds(1), Scheduler.Dispatcher).TakeUntil(image.GetMouseEnter()))
+    .Subscribe(_ => AnimateTo(image, 0.3));
+
+// ----------------------------------------------------------------------------
+
+IObservable<Unit> Ping(int seconds)
+{
+    return Observable.Return(new Unit()).Delay(TimeSpan.FromSeconds(seconds), Scheduler.Dispatcher);
+}
+
+IObservable<Unit> PingIfNotCanceled<T>(IObservable<T> signal, IObservable<T> cancellation, int seconds)
+{
+    return signal.SelectMany(Ping(1).TakeUntil(cancellation));
+}
+
+private void Image_Loaded(object sender, RoutedEventArgs e)
+{
+    var image = sender as Image;
+
+    PingIfNotCanceled(image.GetMouseEnter(), image.GetMouseLeave(), 1)
+        .Subscribe(ping => AnimateScale(image, 1));
+
+    PingIfNotCanceled(image.GetMouseLeave(), image.GetMouseEnter(), 1)
+        .Subscribe(ping => AnimateScale(image, 0.3));
+
+    PingIfNotCanceled(image.GetMouseDown(), image.GetMouseUp(), 2)
+        .Subscribe(ping => MessageBox.Show("Mouse held down continously for 2 seconds"));

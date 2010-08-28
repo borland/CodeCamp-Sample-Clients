@@ -1,0 +1,59 @@
+﻿<Window x:Class="FirstWpfApp.PicturesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:FirstWpfApp"
+        Title="PicturesWindow" Height="480" Width="700">
+    <Window.Resources>
+        <local:ByteArrayToImageSourceConverter x:Key="ByteArrayToImageSource" />
+    </Window.Resources>
+    <Grid>
+        <Rectangle x:Name="Overlay" Panel.ZIndex="10000" Visibility="Hidden" Opacity="0.3" Fill="Black" />
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="40" />
+            </Grid.RowDefinitions>
+        
+            <StackPanel>
+                <TextBlock Text="Pictures for "/>
+                <TextBlock Text="{Binding Person.Name}" />
+            </StackPanel>
+        
+            <ItemsControl Grid.Row="1" ItemsSource="{Binding Pictures}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="40" />
+                            </Grid.RowDefinitions>
+                            <Image
+                                Loaded="Image_Loaded"
+                                Source="{Binding Image, Converter={StaticResource ByteArrayToImageSource}}"
+                                Margin="10" Width="275" Stretch="Uniform" >
+                                <Image.LayoutTransform>
+                                    <ScaleTransform ScaleX="0.3" ScaleY="0.3" />
+                                </Image.LayoutTransform>
+                            </Image>
+
+                            <TextBlock Grid.Row="1" FontSize="12"
+                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Text="{Binding Caption}" />
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        
+            <StackPanel Grid.Row="2">
+                <Button Content="Close" Click="Close_Click" IsCancel="True" />
+            </StackPanel>
+        
+        </Grid>
+    </Grid>
+</Window>
