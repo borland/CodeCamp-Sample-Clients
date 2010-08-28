@@ -19,8 +19,7 @@ namespace moonlightapp
 			VM = new MainWindowViewModel();
             DataContext = VM;
 
-			this.GetLoaded().Subscribe(_ => ReloadPeopleAsync());
-            FetchButton.GetClick().Subscribe(_ => ReloadPeopleAsync());
+            FetchButton.Click += (s, e) => ReloadPeopleAsync();
 		}
 				
         MainWindowViewModel VM { get; set; }
@@ -33,8 +32,6 @@ namespace moonlightapp
 
         private void ViewPictures_Click(object sender, RoutedEventArgs e)
         {
-			ClientLog.Log("Viewing pictures");
-			
             var person = ((Button)sender).DataContext as Person;
             if(person == null)
                 return;
@@ -49,7 +46,7 @@ namespace moonlightapp
             {
                 picWindowVM.Pictures.Add(picture);
 				
-                DataAccess.LoadImageAsync(person.Id, picture.Id).ObserveOnDispatcher().Subscribe(bytes => 
+                DataAccess.LoadRawImageAsync(person.Id, picture.Id).ObserveOnDispatcher().Subscribe(bytes => 
 					picture.Image = bytes);
             });           
             
@@ -58,14 +55,12 @@ namespace moonlightapp
 			picWindow.VerticalAlignment = VerticalAlignment.Center;
 			
 			Container.Children.Add(picWindow);
-			ClientLog.Log("Done");
         }
     }
 
     public class MainWindowViewModel : NotifyObject
     {
         ObservableCollection<Person> m_people;
-		bool m_isEnabled = true;
 		
         public ObservableCollection<Person> People
         { 

@@ -42,4 +42,35 @@ public static class DataAccess
             .ReadToEnd();
     }
 #endif
+	
+	
+	
+	
+	
+	public static IObservable<Person> LoadPeopleAsync()
+	{
+	    return Request("person")
+	        .GetResponseAsync()
+	        .Select(response => response.GetResponseStream())
+	        .SelectMany(stream => stream.ReadToEndAsync())
+	        .SelectMany(bytes => bytes.ReadJson<Person[]>());
+	}
+	
+	public static IObservable<Picture> LoadPicturesAsync(int personId)
+	{
+	    return Request("person", personId, "picture")
+	        .GetResponseAsync()
+	        .Select(response => response.GetResponseStream())
+	        .SelectMany(stream => stream.ReadToEndAsync())
+	        .SelectMany(bytes => bytes.ReadJson<Picture[]>());
+	}
+	
+	
+	public static IObservable<byte[]> LoadRawImageAsync(int personId, int pictureId)
+	{
+	    return Request("person", personId, "picture", pictureId)
+	        .GetResponseAsync()
+	        .Select(response => response.GetResponseStream())
+	        .SelectMany(stream => stream.ReadToEndAsync());
+	}     
 }

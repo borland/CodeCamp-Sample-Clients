@@ -19,14 +19,6 @@
     }
 }).Start();
 
-// ----------------------------------------------------------------------------
-
-DataAccess.LoadPicturesAsync(person.Id).ObserveOnDispatcher().Subscribe(picture =>
-{
-    picWindowVM.Pictures.Add(picture);
-    DataAccess.LoadImageAsync(person.Id, picture.Id).ObserveOnDispatcher().Subscribe(bytes => picture.Image = bytes);
-}); 
-          
 // ----------------------------------------------------------------------------      
 
 public static IObservable<Person> LoadPeopleAsync()
@@ -58,27 +50,25 @@ public static IObservable<byte[]> LoadRawImageAsync(int personId, int pictureId)
 
 // ----------------------------------------------------------------------------
 
-
-        IObservable<Unit> Ping(int seconds)
+		IObservable<Unit> GenerateSignal(int seconds)
         {
             return Observable.Return(new Unit()).Delay(TimeSpan.FromSeconds(seconds), Scheduler.Dispatcher);
         }
 
-        IObservable<Unit> PingIfNotCanceled<T>(IObservable<T> signal, IObservable<T> cancellation, int seconds)
+        IObservable<Unit> SignalAfter<T>(IObservable<T> start, IObservable<T> cancel, int seconds)
         {
-            return signal.SelectMany(Ping(1).TakeUntil(cancellation));
+            return start.SelectMany(GenerateSignal(1).TakeUntil(cancel));
         }
-
 		//
 
 		
-        PingIfNotCanceled(image.GetMouseEnter(), image.GetMouseLeave(), 1)
+        SignalAfter(image.GetMouseEnter(), image.GetMouseLeave(), 1)
             .Subscribe(ping => AnimateScale(image, 1, 250));
 
-        PingIfNotCanceled(image.GetMouseLeave(), image.GetMouseEnter(), 1)
+        SignalAfter(image.GetMouseLeave(), image.GetMouseEnter(), 1)
             .Subscribe(ping => AnimateScale(image, 0.3, 220));
 
-        PingIfNotCanceled(image.GetMouseDown(), image.GetMouseUp(), 2)
+        SignalAfter(image.GetMouseDown(), image.GetMouseUp(), 2)
             .Subscribe(ping => MessageBox.Show("Mouse held down continously for 2 seconds"));
 
 

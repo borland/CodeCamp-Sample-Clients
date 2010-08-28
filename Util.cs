@@ -78,9 +78,17 @@ public static class StreamExtensions
         });
     }
 
+#if !SILVERLIGHT
     public static IObservable<int> ReadAsync(this Stream stream, byte[] buffer, int offset, int count)
+    {
+        return Observable.FromAsyncPattern<byte[], int, int, int>(stream.BeginRead, stream.EndRead)
+            (buffer, offset, count);
+    }
+#else
+	public static IObservable<int> ReadAsync(this Stream stream, byte[] buffer, int offset, int count)
     {
         return Observable.FromAsyncPattern<int>(
             (cb, state) => stream.BeginRead(buffer, offset, count, cb, state), stream.EndRead)();
     }
+#endif
 }

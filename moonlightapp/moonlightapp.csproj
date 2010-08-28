@@ -50,19 +50,19 @@
     <Reference Include="System.ServiceModel.Web" />
     <Reference Include="System.CoreEx, Version=1.0.2617.203, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Rx\SL3\System.CoreEx.dll</HintPath>
+      <HintPath>..\..\Rx\SL3\System.CoreEx.dll</HintPath>
     </Reference>
     <Reference Include="System.Interactive, Version=1.0.2617.203, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Rx\SL3\System.Interactive.dll</HintPath>
+      <HintPath>..\..\Rx\SL3\System.Interactive.dll</HintPath>
     </Reference>
     <Reference Include="System.Observable, Version=1.0.0.203, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Rx\SL3\System.Observable.dll</HintPath>
+      <HintPath>..\..\Rx\SL3\System.Observable.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive, Version=1.0.2617.203, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Rx\SL3\System.Reactive.dll</HintPath>
+      <HintPath>..\..\Rx\SL3\System.Reactive.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

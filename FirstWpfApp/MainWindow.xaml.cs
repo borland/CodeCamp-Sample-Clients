@@ -39,7 +39,9 @@ namespace FirstWpfApp
 
         public void ReloadPeople()
         {
-            ViewModel.People = new ObservableCollection<Person>(DataAccess.LoadPeople());
+            ViewModel.People = new ObservableCollection<Person>();
+            foreach (var p in DataAccess.LoadPeople())
+                ViewModel.People.Add(p);
         }
 
         private void ViewPictures_Click(object sender, RoutedEventArgs e)

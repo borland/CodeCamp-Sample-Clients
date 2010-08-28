@@ -42,7 +42,6 @@ namespace FirstWpfApp
             image.LayoutTransform = xf;
         }
 
-
         private void Image_Loaded(object sender, RoutedEventArgs e)
         {
             var image = sender as Image;
