@@ -33,67 +33,28 @@ namespace FirstWpfApp
             Close();
         }
 
-        void AnimateScale(Image image, double target)
+        void AnimateScale(Image image, double to, double milliseconds)
         {
             var current = ((ScaleTransform)image.LayoutTransform);
             var xf = new ScaleTransform(current.ScaleX, current.ScaleY);
-            xf.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation { To = target, Duration = TimeSpan.FromMilliseconds(250) });
-            xf.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation { To = target, Duration = TimeSpan.FromMilliseconds(250) });
+            xf.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation { To = to, Duration = TimeSpan.FromMilliseconds(milliseconds) });
+            xf.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation { To = to, Duration = TimeSpan.FromMilliseconds(milliseconds) });
             image.LayoutTransform = xf;
         }
 
-        IObservable<Unit> Ping(int seconds)
-        {
-            return Observable.Return(new Unit()).Delay(TimeSpan.FromSeconds(seconds), Scheduler.Dispatcher);
-        }
-
-        IObservable<Unit> PingIfNotCanceled<T>(IObservable<T> signal, IObservable<T> cancellation, int seconds)
-        {
-            return signal.SelectMany(Ping(1).TakeUntil(cancellation));
-        }
 
         private void Image_Loaded(object sender, RoutedEventArgs e)
         {
             var image = sender as Image;
 
-            PingIfNotCanceled(image.GetMouseEnter(), image.GetMouseLeave(), 1)
-                .Subscribe(ping => AnimateScale(image, 1));
-
-            PingIfNotCanceled(image.GetMouseLeave(), image.GetMouseEnter(), 1)
-                .Subscribe(ping => AnimateScale(image, 0.3));
-
-            PingIfNotCanceled(image.GetMouseDown(), image.GetMouseUp(), 2)
-                .Subscribe(ping => MessageBox.Show("Mouse held down continously for 2 seconds"));
-
-
-            //var tEnter = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-            //var tLeave = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-            //image.MouseEnter += (s, e2) =>
-            //{
-            //    tLeave.Stop();
-            //    tEnter.Tick += (s3, e3) =>
-            //    {
-            //        tEnter.Stop();
-            //        if (!image.IsMouseOver)
-            //            return;
-
-            //        AnimateTo(image, 1);
-            //    };
-            //    tEnter.Start();
-            //};
-            //image.MouseLeave += (s, e2) =>
-            //{
-            //    tEnter.Stop();
-            //    tLeave.Tick += (s3, e3) =>
-            //    {
-            //        tLeave.Stop();
-            //        if (image.IsMouseOver)
-            //            return;
-
-            //        AnimateTo(image, 0.3);
-            //    };
-            //    tLeave.Start();                
-            //};
+            image.MouseEnter += (s, e2) =>
+            {
+                AnimateScale(image, 1, 250);
+            };
+            image.MouseLeave += (s, e2) =>
+            {
+                AnimateScale(image, 0.3, 220);
+            };
         }
     }
 

@@ -11,7 +11,7 @@ public static class DataAccess
 
     public static WebRequest Request(params object[] pathOptions)
     {
-        Thread.Sleep(0);
+        Thread.Sleep(300);
         return WebRequest.Create( Server + "/" + String.Join("/", pathOptions.Select(p => p.ToString()).ToArray()) );
     }
 
