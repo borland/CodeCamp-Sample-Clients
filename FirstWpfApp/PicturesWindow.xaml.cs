@@ -42,18 +42,30 @@ namespace FirstWpfApp
             image.LayoutTransform = xf;
         }
 
+        IObservable<Unit> GenerateSignal(int seconds)
+        {
+            return Observable.Return(new Unit()).Delay(TimeSpan.FromSeconds(seconds), Scheduler.Dispatcher);
+        }
+
+        IObservable<Unit> SignalAfter<T>(IObservable<T> start, IObservable<T> cancel, int seconds)
+        {
+            return start.SelectMany(GenerateSignal(1).TakeUntil(cancel));
+        }
+		
         private void Image_Loaded(object sender, RoutedEventArgs e)
         {
             var image = sender as Image;
 
-            image.MouseEnter += (s, e2) =>
-            {
-                AnimateScale(image, 1, 250);
-            };
-            image.MouseLeave += (s, e2) =>
-            {
-                AnimateScale(image, 0.3, 220);
-            };
+
+            SignalAfter(image.GetMouseEnter(), image.GetMouseLeave(), 1)
+                .Subscribe(ping => AnimateScale(image, 1, 250));
+
+            SignalAfter(image.GetMouseLeave(), image.GetMouseEnter(), 1)
+                .Subscribe(ping => AnimateScale(image, 0.3, 220));
+
+            SignalAfter(image.GetMouseDown(), image.GetMouseUp(), 2)
+             .Subscribe(ping => MessageBox.Show("Mouse held down continously for 2 seconds"));
+
         }
     }
 

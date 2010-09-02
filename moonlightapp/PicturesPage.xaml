@@ -5,7 +5,6 @@
         Height="480" Width="700">
     <UserControl.Resources>
         <local:ByteArrayToImageSourceConverter x:Key="ByteArrayToImageSource" />
-        <local:DebugConverter x:Key="DebugConverter" />
     </UserControl.Resources>
     <Border Background="White" CornerRadius="3" BorderThickness="2" BorderBrush="Black">
 	    <Grid>

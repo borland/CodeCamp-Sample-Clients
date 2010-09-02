@@ -11,9 +11,9 @@ public static class DataAccess
 
     public static WebRequest Request(params object[] pathOptions)
     {
-        Thread.Sleep(300);
         return WebRequest.Create( Server + "/" + String.Join("/", pathOptions.Select(p => p.ToString()).ToArray()) );
     }
+
 
 #if !SILVERLIGHT
     public static IEnumerable<Person> LoadPeople()
@@ -44,16 +44,13 @@ public static class DataAccess
 #endif
 	
 	
-	
-	
-	
 	public static IObservable<Person> LoadPeopleAsync()
 	{
-	    return Request("person")
-	        .GetResponseAsync()
-	        .Select(response => response.GetResponseStream())
-	        .SelectMany(stream => stream.ReadToEndAsync())
-	        .SelectMany(bytes => bytes.ReadJson<Person[]>());
+        return Request("person")
+            .GetResponseAsync()
+            .Select(response => response.GetResponseStream())
+            .SelectMany(stream => stream.ReadToEndAsync())
+            .SelectMany(bytes => bytes.ReadJson<Person[]>());
 	}
 	
 	public static IObservable<Picture> LoadPicturesAsync(int personId)

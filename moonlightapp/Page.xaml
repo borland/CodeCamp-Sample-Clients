@@ -25,7 +25,7 @@
 							<TextBlock Grid.Column="0" Text="{Binding FirstName}" Foreground="Green" />
 							<TextBlock Grid.Column="1" Text="{Binding LastName}" />
 							<TextBlock Grid.Column="2" Text="{Binding PhoneNumber}" />
-							<Button IsEnabled="{Binding Path=IsEnabled, ElementName=FetchButton}" Grid.Column="3" Content="View Pictures!" Click="ViewPictures_Click" />
+							<Button Grid.Column="3" Content="View Pictures!" Click="ViewPictures_Click" />
 						</Grid>
 						
 					</DataTemplate>

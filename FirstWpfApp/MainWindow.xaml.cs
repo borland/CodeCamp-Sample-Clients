@@ -40,8 +40,10 @@ namespace FirstWpfApp
         public void ReloadPeople()
         {
             ViewModel.People = new ObservableCollection<Person>();
-            foreach (var p in DataAccess.LoadPeople())
+            DataAccess.LoadPeopleAsync().ObserveOnDispatcher().Subscribe(p =>
+            {
                 ViewModel.People.Add(p);
+            });
         }
 
         private void ViewPictures_Click(object sender, RoutedEventArgs e)
@@ -56,14 +58,17 @@ namespace FirstWpfApp
                 Pictures = new ObservableCollection<Picture>()
             };
                         
-            var pictures = DataAccess.LoadPictures(person.Id);
-            foreach(var tmp in pictures)
+            var pictures = DataAccess.LoadPicturesAsync(person.Id);
+            pictures.ObserveOnDispatcher().Subscribe(tmp =>
             {
                 var picture = tmp;
                 childViewModel.Pictures.Add(picture);
-                var bytes = DataAccess.LoadRawImage(person.Id, picture.Id);
-                picture.Image = bytes;
-            }
+                DataAccess.LoadRawImageAsync(person.Id, picture.Id)
+                    .ObserveOnDispatcher().Subscribe(bytes =>
+                    {
+                        picture.Image = bytes;
+                    });
+            });
             
             picWindow.DataContext = childViewModel;
             picWindow.ShowDialog();
